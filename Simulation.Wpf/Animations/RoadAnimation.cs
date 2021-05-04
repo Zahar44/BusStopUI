@@ -1,52 +1,67 @@
-﻿using Simulation.Core.Models;
-using Simulation.Core.ViewModels;
+﻿using Simulation.Core.ViewModels;
+using Simulation.Wpf.UI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Simulation.Wpf.Helpers
 {
-    public class DragNewModel
+    class RoadAnimation : IAnimationService
     {
         public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.RegisterAttached(
-        "IsEnabled", typeof(bool), typeof(DragNewModel), new FrameworkPropertyMetadata(default(bool), OnPropChanged)
+        "IsEnabled", typeof(bool), typeof(RoadAnimation), new FrameworkPropertyMetadata(default(bool), OnPropChanged)
         {
             BindsTwoWayByDefault = false,
         });
 
-        public static ISimulationEntity SimulationEntity { get; set; }
+        private static RoadCore RoadCore;
 
         private static void OnPropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (!(d is Button fe))
                 throw new InvalidOperationException();
+
             if ((bool)e.NewValue)
             {
                 fe.Click += Click;
             }
             else
             {
+                fe.Click -= Click;
             }
         }
 
         private static void Click(object sender, RoutedEventArgs e)
         {
             var dataContext = sender as FrameworkElement;
-            Mouse.OverrideCursor = Cursors.Cross;
-            if (!(dataContext.DataContext is IAttachedToCursor at))
+            Mouse.OverrideCursor = Cursors.Pen;
+
+            StationCore.LockAll();
+
+            if (!(dataContext.DataContext is ISimulationService simulationService))
             {
-                throw new Exception($"Element {dataContext} not implement {typeof(IAttachedToCursor)}");
+                throw new Exception($"Element {dataContext} not implement {typeof(ISimulationService)}");
             }
-            else
+
+            simulationService.SetDragService(new RoadAnimation());
+            simulationService.DetachModel();
+        }
+        public void OnDrop(object sender)
+        {
+            var dataContext = sender as FrameworkElement;
+            //Mouse.OverrideCursor = Cursors.Arrow;
+
+            if (!(dataContext.DataContext is ISimulationService simulationService))
             {
-                SimulationEntity = new Station();
-                at.OnAttached(SimulationEntity);
+                throw new Exception($"Element {dataContext} not implement {typeof(ISimulationService)}");
             }
+
+            RoadCore ??= new RoadCore(sender as Canvas);
+
+
         }
 
         public static void SetIsEnabled(DependencyObject element, bool value)

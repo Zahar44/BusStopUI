@@ -11,35 +11,45 @@ using System.Windows.Input;
 
 namespace Simulation.Core.ViewModels
 {
-    class ShellViewModel : MvxViewModel, IAttachedToCursor
+    public class ShellViewModel : MvxViewModel, ISimulationService
     {
-        private string text;
+        private MvxObservableCollection<Station> Stations;
+        private IPickable picked;
 
-        public string Text
-        {
-            get { return text; }
-            set { SetProperty(ref text, value); }
-        }
+        public static IAnimationService DragService { get; set; }
 
-        public IMvxCommand MouseDownCommand { get; set; }
+        //public string StationCount => Stations.Count.ToString();
 
         public ShellViewModel()
         {
-            MouseDownCommand = new MvxCommand(MouseDown);
+            Stations = new MvxObservableCollection<Station>();
         }
 
-        private void MouseDown()
+        public void SetDragService(IAnimationService ds)
         {
-            
+            DragService = ds;
         }
 
-        public void OnAttached(ISimulationEntity se)
+        public void SetDefaultDragAction(IAnimationService dragDefault)
         {
-
+            DragService = dragDefault;
         }
 
-        public void OnDrop(ISimulationEntity se)
+        public void CreateModel(IPickable pickable)
         {
+            pickable.Create();
+        }
+
+        public void DetachModel()
+        {
+            picked?.OnDetach();
+            picked = null;
+        }
+
+        public void AttachModel(IPickable pickable)
+        {
+            picked = pickable;
+            picked.OnPick();
         }
     }
 }

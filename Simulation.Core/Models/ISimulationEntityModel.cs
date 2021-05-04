@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace Simulation.Core.Models
 {
-    public interface ISimulationEntity
+    public interface ISimulationEntityModel
     {
-        Uri PickPath { get; }
+        int Id { get; set; }
+
     }
 }

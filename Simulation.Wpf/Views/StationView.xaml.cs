@@ -1,5 +1,4 @@
-﻿using MvvmCross.Binding.BindingContext;
-using MvvmCross.Platforms.Wpf.Views;
+﻿using MvvmCross.Platforms.Wpf.Views;
 using Simulation.Core.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -17,13 +16,14 @@ using System.Windows.Shapes;
 namespace Simulation.Wpf.Views
 {
     /// <summary>
-    /// Interaction logic for ShellView.xaml
+    /// Interaction logic for StationUI.xaml
     /// </summary>
-    public partial class ShellView : MvxWpfView
+    public partial class StationView : MvxWpfView
     {
-        public ShellView()
+        public StationView()
         {
             InitializeComponent();
+            this.DataContext = new StationViewModel();
         }
     }
 }
