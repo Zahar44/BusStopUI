@@ -1,5 +1,6 @@
 ﻿using Simulation.Core.Models;
 using Simulation.Core.ViewModels;
+using Simulation.Wpf.Animations;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,6 +45,7 @@ namespace Simulation.Wpf.Helpers
             }
             
             simulationService.SetDragService(new CursorAnimation());
+            StationCore.SetStationPickService(new DefaultPickService(simulationService));
         }
         public void OnDrop(object sender)
         {

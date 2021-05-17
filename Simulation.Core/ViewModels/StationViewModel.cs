@@ -9,37 +9,38 @@ namespace Simulation.Core.ViewModels
     public class StationViewModel : MvxViewModel
     {
         private static int idCnt = 0;
+        private readonly Station station;
+        private int humanCount;
         private int _id;
         private string _name;
         private bool _picked;
-        private static MvxObservableCollection<Station> stations = new MvxObservableCollection<Station>();
 
-        public string Name => _name;
+        public string Name => station.Id.ToString();
+
+        public int HumansCount
+        {
+            get => humanCount;
+            set { SetProperty(ref humanCount, value); }
+        }
 
         public bool Picked { get => _picked; set => _picked = value; }
 
-        public StationViewModel()
+        public StationViewModel(ISimulationEntityModel _station)
         {
+            if (!(_station is Station))
+                throw new InvalidCastException();
+
             _id = ++idCnt;
             _name = _id.ToString();
             _picked = false;
+            station = (Station)_station;
+            station.ViewModel = this;
+            HumansCount = station.HumanCount;
         }
 
-        public void OnPick(IPickable pickable)
+        internal void UpdateData()
         {
-            pickable.OnPick();
-            Picked = true;
-        }
-
-        public void OnDetach(IPickable pickable)
-        {
-            pickable.OnDetach();
-            Picked = false;
-        }
-
-        internal static void Attach(Station station)
-        {
-            stations.Add(station);
+            HumansCount = station.HumanCount;
         }
     }
 }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 
 namespace Simulation.Wpf.Helpers
 {
     class ColisionHelper
     {
-        private const double pading = 5;
+        private const double pading = 10;
         private UserControl view;
         private Point placeCoordinat;
         private Canvas canvas;
@@ -20,6 +21,40 @@ namespace Simulation.Wpf.Helpers
             placeCoordinat = _placeCoordinat;
             canvas = _canvas;
             posibleImposition = _posibleImposition;
+        }
+
+        public static void CalculateRoadPosition(Line road, UserControl first, UserControl second)
+        {
+            double weight = first.ActualWidth;
+            double height = first.ActualHeight;
+            double leftX, leftY, rightX, rightY;
+
+            Point f = new Point(Canvas.GetLeft(first), Canvas.GetTop(first));
+            Point s = new Point(Canvas.GetLeft(second), Canvas.GetTop(second));
+            Point min = MinPointByX(f, s);
+            Point max = MaxPointByX(f, s);
+
+            if (Math.Abs(f.X - s.X) > Math.Abs(f.Y - s.Y))
+            {
+                leftX = min.X + weight + pading;
+                leftY = min.Y + height / 2;
+                rightX = max.X - pading;
+                rightY = max.Y + height / 2;
+            }
+            else
+            {
+                min = MinPointByY(f, s);
+                max = MaxPointByY(f, s);
+                leftX = min.X + weight / 2;
+                leftY = min.Y + height + pading;
+                rightX = max.X + weight / 2;
+                rightY = max.Y - pading;
+            }
+            
+            road.X1 = leftX;
+            road.X2 = rightX;
+            road.Y1 = leftY;
+            road.Y2 = rightY;
         }
 
         public bool CanMove()
@@ -103,5 +138,10 @@ namespace Simulation.Wpf.Helpers
                 return new Point(0, resY);
             }
         }
+
+        private static Point MinPointByX(Point x1, Point x2) => x1.X < x2.X ? x1 : x2;
+        private static Point MinPointByY(Point x1, Point x2) => x1.Y < x2.Y ? x1 : x2;
+        private static Point MaxPointByX(Point x1, Point x2) => x1.X > x2.X ? x1 : x2;
+        private static Point MaxPointByY(Point x1, Point x2) => x1.Y > x2.Y ? x1 : x2;
     }
 }

@@ -16,13 +16,24 @@ using System.Windows.Shapes;
 namespace Simulation.Wpf.Views
 {
     /// <summary>
-    /// Interaction logic for StationUI.xaml
+    /// Interaction logic for RoadDialogeView.xaml
     /// </summary>
-    public partial class StationView : MvxWpfView
+    public partial class RoadDialogeView : MvxWpfView
     {
-        public StationView()
+        public RoadDialogeView()
         {
             InitializeComponent();
+        }
+
+        private void Create_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Dialoge.CloseDialog();
+        }
+
+        private void Close_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            (DataContext as RoadDialogeViewModel).Length = 0;
+            Dialoge.CloseDialog();
         }
     }
 }

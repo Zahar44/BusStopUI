@@ -25,6 +25,8 @@ namespace Simulation.Wpf.Helpers
     {
         UserControl View { get; }
 
+        Canvas Canvas { get; }
+
         ISimulationEntityModel SimulationModel { get; }
         
         Uri PickPath { get; }

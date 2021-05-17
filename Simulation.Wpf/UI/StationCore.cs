@@ -4,6 +4,7 @@ using MvvmCross.Views;
 using Simulation.Core.Models;
 using Simulation.Core.ViewModels;
 using Simulation.Wpf.Animations;
+using Simulation.Wpf.UI;
 using Simulation.Wpf.Views;
 using System;
 using System.Collections.Generic;
@@ -16,17 +17,18 @@ using System.Windows.Media;
 
 namespace Simulation.Wpf.Helpers
 {
-    class StationCore : ISimulationEntityCore, IPickable
+    class StationCore : ISimulationEntityCore, IPickable, IHoldBusesUI
     {
-        private static UserControl picked;
         private static bool isLocked = false;
-        private readonly Canvas canvas;
         private readonly ISimulationService simulationService;
-        private readonly ISimulationEntityModel _simulationEntity;
+        private readonly Station station;
+        private MvxObservableCollection<RoadCore> roads = new MvxObservableCollection<RoadCore>();
+        private MvxObservableCollection<BusCore> buses = new MvxObservableCollection<BusCore>();
         private IStationPickService pickService;
         public static readonly int defaultZCoord = 2;
         public static MvxObservableCollection<UserControl> Views = new MvxObservableCollection<UserControl>();
-        public static List<StationCore> Stations = new List<StationCore>();
+        public static MvxObservableCollection<StationCore> Stations = new MvxObservableCollection<StationCore>();
+        public readonly Canvas canvas;
 
         public UserControl View { get; private set; }
 
@@ -35,25 +37,51 @@ namespace Simulation.Wpf.Helpers
         public Size Size => new Size(50, 50);
 
 
-        public ISimulationEntityModel SimulationModel => _simulationEntity;
+        public ISimulationEntityModel SimulationModel => station;
+
+        public Canvas Canvas => canvas;
+
+        public int Delay => station.Delay;
+
+        public IHoldBuses Model => station;
 
         public StationCore(Canvas ca, ISimulationService ss)
         {
-            if (ca == null || ss == null)
-                throw new NullReferenceException();
-
-            _simulationEntity = new Station();
+            station = new Station();
             simulationService = ss;
             canvas = ca;
 
             SetUp();
         }
-        
+
+        public static ISimulationEntityModel GetModelBy(UserControl control)
+        {
+            foreach (var item in Stations)
+            {
+                if (item.View == control)
+                    return item.SimulationModel;
+            }
+            throw new Exception();
+        }
+
+        public static StationCore GetModelBy(ISimulationEntityModel model)
+        {
+            foreach (var item in Stations)
+            {
+                if (item.SimulationModel == model)
+                    return item;
+            }
+            throw new Exception();
+        }
+
         public static void SetStationPickService(IStationPickService service)
         {
             foreach (var station in Stations)
             {
-                station.pickService = service;
+                station.Lock();
+                station.pickService.Detach();
+                station.pickService = service.Copy();
+                station.Unlock();
             }
         }
 
@@ -93,40 +121,79 @@ namespace Simulation.Wpf.Helpers
 
         public void OnPick()
         {
-            pickService.Pick();
-            picked = View;
+            pickService.Pick(View);
         }
 
         public void OnDetach()
         {
             pickService.Detach();
-            picked = null;
+        }
+
+
+        public void AddBus(BusCore bus)
+        {
+            buses.Add(bus);
+
+            double x = 0, y = 0;
+            View.Dispatcher.Invoke(() =>
+            {
+                x = Canvas.GetLeft(View);
+                y = Canvas.GetTop(View);
+            });
+
+            y -= 25;
+            x += 25;
+
+            bus.View.Dispatcher.Invoke(() =>
+            {
+                Canvas.SetLeft(bus.View, x);
+                Canvas.SetTop(bus.View, y);
+                if (!canvas.Children.Contains(bus.View))
+                    canvas.Children.Add(bus.View);
+            });
+        }
+
+        public void RemoveBus(BusCore bus)
+        {
+            buses.Remove(bus);
+        }
+
+        public void UpdatePos(BusCore bus, int delay) {}
+
+        public void AddRoadToEach(RoadCore road)
+        {
+            if(road.SimulationModel is Road r)
+            {
+                GetModelBy(r.First).roads.Add(road);
+                GetModelBy(r.Second).roads.Add(road);
+            }
+            else
+            {
+                throw new Exception("Can't add road to second station");
+            }
+        }
+
+        public void Redraw()
+        {
+            foreach (var road in roads)
+            {
+                road.Redraw();
+            }
+
+            foreach (var bus in buses)
+            {
+                bus.Redraw();
+            }
         }
 
         private void Lock()
         {
-            View.MouseDoubleClick -= SelectElement;
+            pickService.Lock(this);
         }
 
         private void Unlock()
         {
-            View.MouseDoubleClick += SelectElement;
-        }
-
-        private void DragMove(object sender, MouseEventArgs e)
-        {
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
-            {
-                var view = sender as UserControl;
-                var cursorPos = Mouse.GetPosition(canvas);
-                var colisionHelper = new ColisionHelper(view, cursorPos, canvas, Views);
-
-                if(colisionHelper.CanMove() == false)
-                    return;
-                
-                Canvas.SetLeft(view, cursorPos.X - view.ActualWidth / 2);
-                Canvas.SetTop(view, cursorPos.Y - view.ActualHeight / 2);
-            }
+            pickService.Unlock(this);
         }
 
         private void PlaceView(object sender, MouseEventArgs e)
@@ -143,22 +210,14 @@ namespace Simulation.Wpf.Helpers
             Canvas.SetTop(view, cursorPos.Y - view.ActualHeight / 2);
         }
 
-        private void SelectElement(object sender, MouseButtonEventArgs e)
-        {
-            var view = sender as UserControl;
-            bool pick = picked == null ? true : false;
-
-            simulationService.DetachModel();
-
-            if (pick)
-            {
-                simulationService.AttachModel(this);
-            }
-        }
         private void SetUp()
         {
-            View = new StationView();
-            pickService = new DefaultPickService(canvas, View);
+            var Data = new StationViewModel(SimulationModel);
+            View = new StationView
+            {
+                DataContext = Data
+            };
+            pickService = new DefaultPickService(simulationService);
 
             if (isLocked)
                 Lock();

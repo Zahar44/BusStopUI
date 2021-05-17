@@ -13,5 +13,7 @@ namespace Simulation.Core.ViewModels
         void AttachModel(IPickable pickable);
 
         void DetachModel();
+
+        void Action();
     }
 }

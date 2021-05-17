@@ -1,20 +1,18 @@
 ﻿using Simulation.Core.ViewModels;
+using Simulation.Wpf.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace Simulation.Wpf.Helpers
 {
-    class PlaceNewModel
+    class MovePanel
     {
         public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.RegisterAttached(
-        "IsEnabled", typeof(bool), typeof(PlaceNewModel), new FrameworkPropertyMetadata(default(bool), OnPropChanged)
+        "IsEnabled", typeof(bool), typeof(MovePanel), new FrameworkPropertyMetadata(default(bool), OnPropChanged)
         {
             BindsTwoWayByDefault = false,
         });
@@ -35,20 +33,10 @@ namespace Simulation.Wpf.Helpers
         }
         private static void Drop(object sender, MouseButtonEventArgs e)
         {
-            ShellViewModel.DragService.OnDrop(sender);
-
-            var dataContext = sender as FrameworkElement;
-
-            if (!(dataContext.DataContext is ISimulationService simulationService))
-            {
-                throw new Exception($"Element {dataContext} not implement {typeof(ISimulationService)}");
-            }
-
-            simulationService.SetDragService(new CursorAnimation());
-            if(e.ClickCount == 2)
-                simulationService.DetachModel();
+            var canvas = sender as Canvas;
+            Canvas.SetLeft(canvas, 100);
         }
-        
+
         public static void SetIsEnabled(DependencyObject element, bool value)
         {
             element.SetValue(IsEnabledProperty, value);

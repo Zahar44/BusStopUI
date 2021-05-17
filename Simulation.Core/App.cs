@@ -12,6 +12,7 @@ namespace Simulation.Core
                 .EndingWith("Service")
                 .AsInterfaces()
                 .RegisterAsLazySingleton();
+
             RegisterAppStart<ShellViewModel>();
         }
     }

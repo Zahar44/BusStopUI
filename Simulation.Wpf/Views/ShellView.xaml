@@ -1,5 +1,6 @@
 ﻿<views:MvxWpfView  
-    xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf" x:Class="Simulation.Wpf.Views.ShellView"
+    xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf" 
+    x:Class="Simulation.Wpf.Views.ShellView"
     xmlns:mvx="clr-namespace:MvvmCross.Platforms.Wpf.Binding;assembly=MvvmCross.Platforms.Wpf"    
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,15 +8,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Simulation.Wpf.Helpers" xmlns:views1="clr-namespace:Simulation.Wpf.Views"
-    mc:Ignorable="d" 
+             xmlns:local="clr-namespace:Simulation.Wpf.Helpers" 
+             xmlns:ui="clr-namespace:Simulation.Wpf.UI" 
+             mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Image x:Key="Play" Source="D:\projects\BusStopUI\Simulation.Wpf\Source\play.png" Height="25" Width="25" />
+        <Image x:Key="Stop" Source="D:\projects\BusStopUI\Simulation.Wpf\Source\pause.png" Height="25" Width="25"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
@@ -26,39 +31,135 @@
             <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
 
-        <Button Grid.Column="1" Grid.Row="1"
+        <!-- Col 1 Row 1 -->
+
+        <materialDesign:ColorZone Grid.Column="1" Grid.Row="1"
+                                  Grid.ColumnSpan="3">
+            <DockPanel>
+                <StackPanel Grid.Column="1" Grid.Row="1" 
+                    Orientation="Horizontal"
+                    Margin="3">
+                    <Button
                 local:CursorAnimation.IsEnabled="True"
                 Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                 ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-            <materialDesign:PackIcon 
+                        <materialDesign:PackIcon 
                     Kind="CursorDefault"
                     Height="25"
                     Width="25"/>
-        </Button>
+                    </Button>
 
-        <Button Grid.Column="2" Grid.Row="1"
+                    <Button
                 local:StationAnimation.IsEnabled="True"
                 Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                 ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-            <materialDesign:PackIcon 
+                        <materialDesign:PackIcon 
                     Kind="BusStop"
                     Height="25"
                     Width="25"/>
-        </Button>
+                    </Button>
 
-        <Button Grid.Column="3" Grid.Row="1"
+                    <Button
                 local:RoadAnimation.IsEnabled="True"
                 Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                 ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-            <materialDesign:PackIcon 
+                        <materialDesign:PackIcon 
                     Kind="PencilAddOutline"
                     Height="25"
                     Width="25"/>
-        </Button>
+                    </Button>
 
-        <Canvas Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="3"
-                Background="AliceBlue"
-                local:PlaceNewModel.IsEnabled="True">
-        </Canvas>
+                    <Button
+            local:RouteDialoge.IsEnabled="True"
+            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+                        <materialDesign:PackIcon 
+                Kind="BusMarker"
+                Height="25"
+                Width="25"/>
+                    </Button>
+
+                </StackPanel>
+
+                <!-- Col 2 Row 1 -->
+
+                <StackPanel Grid.Column="2" Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="200, 3, 3, 3">
+                    <Button
+            Click="Slow_Click"
+            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+
+                        <materialDesign:PackIcon 
+                Kind="ChevronLeft"
+                Height="25"
+                Width="25"/>
+                    </Button>
+
+                    <Button
+            Click="Pause_Click"
+            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+
+                        <DynamicResource ResourceKey="Play"/>
+                    </Button>
+
+                    <Button
+            Click="Quicker_Click"
+            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+                        <materialDesign:PackIcon 
+                Kind="ChevronRight"
+                Height="25"
+                Width="25"/>
+                    </Button>
+                </StackPanel>
+
+            </DockPanel>
+
+        </materialDesign:ColorZone>
+
+        <!-- Col 1 Row 2 -->
+
+        <Border Grid.Column="1" Grid.Row="2"
+                BorderBrush="Black" BorderThickness="2">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <ListView 
+                      FontSize="10"
+                      Foreground="Black"
+                      ItemsSource="{Binding Routes}"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Col 2 Row 2 -->
+
+        <Border Grid.Column="2" Grid.Row="2"
+                Grid.ColumnSpan="2"
+                BorderBrush="Black" BorderThickness="2">
+            <ScrollViewer
+                HorizontalScrollBarVisibility="Hidden"
+                VerticalScrollBarVisibility="Hidden"
+                PreviewKeyDown="ScrollViewer_KeyDown"
+                KeyUp="ScrollViewer_KeyUp">
+                
+                <Canvas 
+                    Background="AliceBlue"
+                    Panel.ZIndex="2"
+                    Height="1000"
+                    Width="2000"
+                    local:PlaceNewModel.IsEnabled="True">
+
+                    <Canvas.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="st" />
+                            <TranslateTransform x:Name="translate" />
+                        </TransformGroup>
+                    </Canvas.RenderTransform>
+                </Canvas>
+            </ScrollViewer>
+        </Border>
+        
     </Grid>
 </views:MvxWpfView>

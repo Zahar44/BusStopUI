@@ -1,9 +1,7 @@
 ﻿using MvvmCross.Platforms.Wpf.Views;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -14,22 +12,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Simulation.Wpf
+namespace Simulation.Wpf.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for BusView.xaml
     /// </summary>
-    public partial class MainWindow : MvxWindow
+    public partial class BusView : MvxWpfView
     {
-        public MainWindow()
+        public BusView()
         {
             InitializeComponent();
-            Closing += MainWindow_Closing;
-        }
-
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            Environment.Exit(Environment.ExitCode);
         }
     }
 }

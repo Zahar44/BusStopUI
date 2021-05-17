@@ -1,4 +1,5 @@
 ﻿using Simulation.Core.ViewModels;
+using Simulation.Wpf.Animations;
 using Simulation.Wpf.UI;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,6 @@ namespace Simulation.Wpf.Helpers
         {
             BindsTwoWayByDefault = false,
         });
-
-        private static RoadCore RoadCore;
 
         private static void OnPropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -39,8 +38,6 @@ namespace Simulation.Wpf.Helpers
             var dataContext = sender as FrameworkElement;
             Mouse.OverrideCursor = Cursors.Pen;
 
-            StationCore.LockAll();
-
             if (!(dataContext.DataContext is ISimulationService simulationService))
             {
                 throw new Exception($"Element {dataContext} not implement {typeof(ISimulationService)}");
@@ -48,20 +45,24 @@ namespace Simulation.Wpf.Helpers
 
             simulationService.SetDragService(new RoadAnimation());
             simulationService.DetachModel();
+
+            StationCore.SetStationPickService(new RoadPickService(simulationService));
         }
         public void OnDrop(object sender)
         {
-            var dataContext = sender as FrameworkElement;
+            //var dataContext = sender as FrameworkElement;
             //Mouse.OverrideCursor = Cursors.Arrow;
 
-            if (!(dataContext.DataContext is ISimulationService simulationService))
-            {
-                throw new Exception($"Element {dataContext} not implement {typeof(ISimulationService)}");
-            }
+            //if (!(dataContext.DataContext is ISimulationService simulationService))
+            //{
+            //    throw new Exception($"Element {dataContext} not implement {typeof(ISimulationService)}");
+            //}
 
-            RoadCore ??= new RoadCore(sender as Canvas);
-
-
+            //RoadCore ??= new RoadCore(sender as Canvas);
+            //RoadCore.Control = dataContext as UserControl;
+            //simulationService.AttachModel(new StationCore(simulationService, new RoadPickService()));
+            //RoadCore.OnPick();
+            //StationCore.UnlockAll();
         }
 
         public static void SetIsEnabled(DependencyObject element, bool value)
