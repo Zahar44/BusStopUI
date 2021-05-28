@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulation.Core", "Simulation.Core\Simulation.Core.csproj", "{39548A32-9026-485F-A04B-10088ECFADAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simulation.Core", "Simulation.Core\Simulation.Core.csproj", "{39548A32-9026-485F-A04B-10088ECFADAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulation.Wpf", "Simulation.Wpf\Simulation.Wpf.csproj", "{9E4D5622-0CDE-43D0-9B54-7D075007E00A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simulation.Wpf", "Simulation.Wpf\Simulation.Wpf.csproj", "{9E4D5622-0CDE-43D0-9B54-7D075007E00A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
