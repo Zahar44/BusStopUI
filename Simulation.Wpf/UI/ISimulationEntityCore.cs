@@ -21,14 +21,14 @@ namespace Simulation.Wpf.Helpers
         }
     }
 
-    public interface ISimulationEntityCore
+    public interface ISimulationEntityCore : IDisposable
     {
         UserControl View { get; }
 
         Canvas Canvas { get; }
 
         ISimulationEntityModel SimulationModel { get; }
-        
+
         Uri PickPath { get; }
         
         Size Size { get; }

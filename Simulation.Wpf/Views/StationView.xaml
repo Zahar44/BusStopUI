@@ -8,6 +8,7 @@
              xmlns:local="clr-namespace:Simulation.Wpf.Views"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="50"
+             Focusable="True"
              BorderBrush="Red">
     
     <Grid>
@@ -20,7 +21,10 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Image Height="50"
-            Source="D:\projects\BusStopUI\Simulation.Wpf\Source\Station.png"/>
+               x:Name="Img"
+               IsEnabled="True"
+               Focusable="True"
+               Source="D:\projects\BusStopUI\Simulation.Wpf\Source\Station.png"/>
         <TextBlock Text="{Binding Name}"/>
         <TextBlock Grid.Column="0" Grid.Row="2"
                    FontSize="7" Text="{Binding HumansCount}"/>

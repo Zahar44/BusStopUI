@@ -72,6 +72,12 @@ namespace Simulation.Core.Models
             buses.Remove(bus);
         }
 
+        public void Dispose()
+        {
+            first.DetachRoad(this);
+            second.DetachRoad(this);
+            GC.SuppressFinalize(this);
+        }
         public override string ToString() => $"{Id}";
     }
 }

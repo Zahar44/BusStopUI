@@ -6,8 +6,8 @@ namespace Simulation.Core.Models
 {
     interface IHoldHumans
     {
-        void AddHuman(Human human);
+        bool AddHuman(Human human);
 
-        void RemoveHuman(Human human); 
+        void DropHuman(Human human); 
     }
 }

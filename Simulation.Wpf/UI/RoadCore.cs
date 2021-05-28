@@ -235,5 +235,21 @@ namespace Simulation.Wpf.UI
 
             return !Double.IsInfinity(x) ? x : x1;
         }
+
+        public void Dispose()
+        {
+            SimulationModel.Dispose();
+            Roads.Remove(this);
+            
+            Canvas.Children.Remove(View);
+
+            RouteCore.DisposeBy(this);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Destroy()
+        {
+            Dispose();
+        }
     }
 }

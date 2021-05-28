@@ -134,6 +134,16 @@ namespace Simulation.Wpf.Helpers
         {
             buses.Add(bus);
 
+            UpdatePos(bus, 0);
+        }
+
+        public void RemoveBus(BusCore bus)
+        {
+            buses.Remove(bus);
+        }
+
+        public void UpdatePos(BusCore bus, int delay) 
+        {
             double x = 0, y = 0;
             View.Dispatcher.Invoke(() =>
             {
@@ -152,13 +162,6 @@ namespace Simulation.Wpf.Helpers
                     canvas.Children.Add(bus.View);
             });
         }
-
-        public void RemoveBus(BusCore bus)
-        {
-            buses.Remove(bus);
-        }
-
-        public void UpdatePos(BusCore bus, int delay) {}
 
         public void AddRoadToEach(RoadCore road)
         {
@@ -184,6 +187,20 @@ namespace Simulation.Wpf.Helpers
             {
                 bus.Redraw();
             }
+        }
+
+        public void Dispose()
+        {
+            SimulationModel.Dispose();
+            Canvas.Children.Remove(View);
+
+            foreach (var road in roads)
+            {
+                road.Dispose();
+            }
+
+            RouteCore.DisposeBy(this);
+            GC.SuppressFinalize(this);
         }
 
         private void Lock()
@@ -226,6 +243,11 @@ namespace Simulation.Wpf.Helpers
 
             Views.Add(View);
             Stations.Add(this);
+        }
+
+        public void Destroy()
+        {
+            Dispose();
         }
     }
 }

@@ -1,8 +1,13 @@
-﻿using MvvmCross.Binding.BindingContext;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using MvvmCross.Binding.BindingContext;
 using MvvmCross.Platforms.Wpf.Views;
+using Simulation.Core.Models;
 using Simulation.Core.ViewModels;
+using Simulation.Wpf.Animations;
+using Simulation.Wpf.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,27 +32,29 @@ namespace Simulation.Wpf.Views
 
         private void Quicker_Click(object sender, RoutedEventArgs e)
         {
-            ShellViewModel.SpeedUpSimulation();
+            (DataContext as ShellViewModel).SpeedUpSimulation();
         }
 
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
             Button b = sender as Button;
-            if (ShellViewModel.Paused)
+            if ((DataContext as ShellViewModel).Paused)
             {
-                ShellViewModel.ContinueSimulation();
+                (DataContext as ShellViewModel).ContinueSimulation();
                 b.Content = FindResource("Stop");
+                b.ToolTip = "Stop simulation";
             }
             else
             {
-                ShellViewModel.PauseSimulation();
+                (DataContext as ShellViewModel).PauseSimulation();
                 b.Content = FindResource("Play");
+                b.ToolTip = "Play simulation";
             }
         }
 
         private void Slow_Click(object sender, RoutedEventArgs e)
         {
-            ShellViewModel.SlowSimulation();
+            (DataContext as ShellViewModel).SlowSimulation();
         }
 
         private void ScrollViewer_KeyDown(object sender, KeyEventArgs e)
@@ -103,6 +110,46 @@ namespace Simulation.Wpf.Views
 
                 scroll.MouseMove -= ScrollViewer_MouseMove;
                 scroll.PreviewMouseLeftButtonDown -= ScrollViewer_MouseDown;
+            }
+        }
+
+        private void DestroyKey(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Delete)
+            {
+                (DataContext as ShellViewModel).Picked?.Destroy();
+            }
+        }
+
+        private void Routes_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var list = sender as ListView;
+            if (list.SelectedItem == null)
+                return;
+            
+            var route = RouteCore.FindBy(list.SelectedItem.ToString());
+            (DataContext as ShellViewModel).AttachModel(route);
+        }
+
+        private void Excel_Click(object sender, RoutedEventArgs e)
+        {
+            var l = new Loger();
+
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            CommonFileDialogResult path = dialog.ShowDialog();
+
+            try
+            {
+                if (path == CommonFileDialogResult.Ok)
+                {
+                    l.MakeLogIntoExcelFile(dialog.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                MessageBox.Show($"Cannot access file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -5,9 +5,8 @@ using System.Text;
 
 namespace Simulation.Core.Models
 {
-    public interface ISimulationEntityModel
+    public interface ISimulationEntityModel : IDisposable
     {
         int Id { get; set; }
-
     }
 }

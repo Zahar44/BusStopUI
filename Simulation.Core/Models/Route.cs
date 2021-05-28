@@ -14,18 +14,35 @@ namespace Simulation.Core.Models
         private static int idCnt = 0;
         private static ObservableCollection<Route> routes = new ObservableCollection<Route>();
         private readonly IUpdatable ui;
+        private readonly Loger loger;
+        private int busCount;
+        private int totalHumanSpawnChanse = 0;
+        private int totalLength = 0;
+        private int stationCount = 0;
         private Dictionary<IHoldBuses, IList<Bus>> PlaceBuses = new Dictionary<IHoldBuses, IList<Bus>>();
 
         public int Id { get; set; }
 
+        public int BusCount => busCount;
+
+        public int TotalLength => totalLength;
+
+        public int TotalHumanSpawnChanse => totalHumanSpawnChanse / stationCount;
+
+        public List<Station> Stations { get; private set; }
+
         public Route(IList<IHoldBuses> places, IList<Bus> buses, IUpdatable _ui)
         {
             Id = ++idCnt;
+            busCount = buses.Count;
+            Stations = new List<Station>();
             routes.Add(this);
 
             ui = _ui;
             
             Activate(places, buses);
+            loger = new Loger();
+            loger.LogRoute(this);
             Debug.WriteLine($"Route #{this} created");
         }
 
@@ -58,6 +75,12 @@ namespace Simulation.Core.Models
             Debug.WriteLine($"Bus #{bus} created at station #{first}");
         }
 
+        public void Dispose()
+        {
+            routes.Remove(this);
+
+            GC.SuppressFinalize(this);
+        }
 
         private void MoveBuses(IHoldBuses current, IList<Bus> buses)
         {
@@ -83,8 +106,9 @@ namespace Simulation.Core.Models
             to.AddBus(bus);
             PlaceBuses[to].Add(bus);
 
-            bus.SetDelay(NextPlace(to, bus.IsForward).Delay);
             SetIsForward(bus, to);
+            var d = bus.IsForward ? to.Delay + 1 : to.Delay;
+            bus.SetDelay(d);
 
             Debug.WriteLine($"Bus #{bus} moved from station {from} to {to}");
         }
@@ -137,14 +161,22 @@ namespace Simulation.Core.Models
             foreach (var place in places)
             {
                 PlaceBuses.Add(place, new List<Bus>());
+
+                if (place is Station station)
+                {
+                    totalHumanSpawnChanse += station.HumanSpawnChanse;
+                    Stations.Add(station);
+                    stationCount++;
+                }
+                if (place is Road road) totalLength += road.Length;
             }
 
             var first = PlaceBuses.First();
             foreach (var bus in buses)
             {
                 first.Value.Add(bus);
-                var delay = NextPlace(first.Key, true).Delay;
-                bus.SetDelay(delay);
+                //var delay = NextPlace(first.Key, true).Delay;
+                bus.SetDelay(first.Key.Delay);
             }
         }
 

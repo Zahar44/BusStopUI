@@ -11,16 +11,20 @@ namespace Simulation.Core.Models
 {
     public class Station : ISimulationEntityModel, IHoldHumans, IHoldBuses
     {
-        static private int idCnt = 0;
-        //private readonly int humanSpawnRate = 25;
-        private readonly int humanSpawnChance = 25;
-        private readonly Random random;
-        private MvxObservableCollection<Human> Humen = new MvxObservableCollection<Human>();
-        private MvxObservableCollection<Bus> Buses = new MvxObservableCollection<Bus>();
-        private MvxObservableCollection<Road> Roads = new MvxObservableCollection<Road>();
         public static MvxObservableCollection<Station> Stations = new MvxObservableCollection<Station>();
+        static private int idCnt = 0;
+        private readonly int humanSpawnChance = 5;
+        private readonly Random random;
+        private MvxObservableCollection<Human> Humen;
+        private MvxObservableCollection<Bus> Buses;
+        private MvxObservableCollection<Road> Roads;
+        private List<Data> datas;
+        private SimulationTimer lastLogetTime;
+
 
         public StationViewModel ViewModel { get; set; }
+
+        public List<Data> Datas => datas;
 
         public int Id { get; set; }
 
@@ -28,10 +32,17 @@ namespace Simulation.Core.Models
 
         public int HumanCount => Humen.Count;
 
+        public int HumanSpawnChanse => humanSpawnChance;
+
         public Station()
         {
             Id = ++idCnt;
             random = new Random();
+            Humen = new MvxObservableCollection<Human>();
+            Buses = new MvxObservableCollection<Bus>();
+            Roads = new MvxObservableCollection<Road>();
+            datas = new List<Data>();
+            lastLogetTime = ShellViewModel.FullTime;
 
             Stations.Add(this);
         }
@@ -56,17 +67,23 @@ namespace Simulation.Core.Models
             Roads.Add(road);
         }
 
+        public void DetachRoad(Road road)
+        {
+            Roads.Remove(road);
+        }
+
         public MvxObservableCollection<Road> GetRoads()
         {
             return Roads;
         }
 
-        public void AddHuman(Human human)
+        public bool AddHuman(Human human)
         {
             Humen.Add(human);
+            return true;
         }
 
-        public void RemoveHuman(Human human)
+        public void DropHuman(Human human)
         {
             Humen.Remove(human);
         }
@@ -74,6 +91,7 @@ namespace Simulation.Core.Models
         public void AddBus(Bus bus)
         {
             Buses.Add(bus);
+            bus.RemoveRandomHumen(random.Next(0, 100));
         }
 
         public void RemoveBus(Bus bus)
@@ -81,40 +99,104 @@ namespace Simulation.Core.Models
             Buses.Remove(bus);
         }
 
+        public void Dispose()
+        {
+            Stations.Remove(this);
+         
+            GC.SuppressFinalize(this);
+        }
 
         private void Simulate()
         {
             ViewModel?.UpdateData();
-
-            if (humanSpawnChance < random.Next(0, 100))
-            {
-                SpawnHuman();
-            }
+            SpawnHuman();
+            DropHumans();
 
             foreach (var bus in Buses)
             {
+
                 if(random.Next(0, 100) > 25 && Humen.Count > 0)
                 {
                     var h = Humen[random.Next(0, HumanCount - 1)];
                     PickHumanByBus(h, bus);
                 }
             }
+
+            foreach (var human in Humen)
+            {
+                human.Tick();
+            }
+
+            LogData(ShellViewModel.FullTime.Hour);
+        }
+
+        private void LogData(int hour)
+        {
+            if (lastLogetTime.Hour == hour) return;
+            Datas.Add(new Data());
+            lastLogetTime = ShellViewModel.FullTime;
+            var dataIndex = datas.Count - 1;
+
+            datas[dataIndex].HumanCount = Humen.Count;
+            int avr = 0;
+            foreach (var human in Humen)
+            {
+                avr += human.WaitingTime;
+            }
+
+            avr = datas[dataIndex].HumanCount > 0 ? avr / Datas[dataIndex].HumanCount : avr;
+            datas[dataIndex].AverageHumanWaitingTime = avr;
         }
 
         private void SpawnHuman()
         {
-            var human = new Human();
-            Humen.Add(human);
-            //Debug.WriteLine($"Human #{human} created at station #{this}");
+            if (humanSpawnChance > random.Next(0, 100))
+            {
+                var human = new Human(Id);
+                Humen.Add(human);
+                //Debug.WriteLine($"Human #{human} created at station #{this}");
+            }
         }
 
         private void PickHumanByBus(Human human, Bus bus)
         {
-            bus.AddHuman(human);
-            Humen.Remove(human);
+            if(bus.AddHuman(human))
+            {
+                human.SitAt = ShellViewModel.FullTime;
+                Humen.Remove(human);
+            }
             //Debug.WriteLine($"Human #{human} picked by Bus #{bus}");
         }
 
+        private void DropHumans()
+        {
+            foreach (var bus in Buses)
+            {
+                DropHumans(bus);
+            }
+        }
+
+        private void DropHumans(Bus bus)
+        {
+            for (int i = 0; i < bus.Humen.Count; i++)
+            {
+                if (bus.Humen[i].StationB == Id)
+                {
+                    bus.Humen[i].DestroyedAt = ShellViewModel.FullTime;
+                    new Loger().LogHuman(bus.Humen[i]);
+                    bus.DropHuman(bus.Humen[i]);
+                }
+            }
+        }
+
+
         public override string ToString() => $"{Id}";
+
+
+        public class Data
+        {
+            public int HumanCount { get; set; }
+            public int AverageHumanWaitingTime { get; set; }
+        }
     }
 }

@@ -8,24 +8,28 @@ namespace Simulation.Core.ViewModels
 {
     public class Bus : ISimulationEntityModel, IHoldHumans
     {
-        static private int idCnt = 0;
         private const int seatsCount = 30;
-        private IList<Human> Humen;
+        private static int idCnt = 0;
+        private IList<Human> _humen;
         private int initDelay;
         private int staySeconds;
-        private int delaySeconds;
 
         public int Id { get; set; }
 
-        public bool Next => staySeconds == 0;
+        public bool Next => staySeconds < 0;
+
+        public BusViewModel Data { get; set; }
 
         public bool IsForward { get; set; } = true;
+
+        public IList<Human> Humen => _humen;
+
 
         public Bus(int _initDelay)
         {
             Id = ++idCnt;
-            initDelay = _initDelay;
-            Humen = new List<Human>(seatsCount);
+            initDelay = _initDelay + 3;
+            _humen = new List<Human>(seatsCount);
         }
 
         public bool Init()
@@ -47,17 +51,43 @@ namespace Simulation.Core.ViewModels
 
         public void SetDelay(int _delaySeconds)
         {
-            staySeconds = _delaySeconds + 2;
+            staySeconds = _delaySeconds;
         }
 
-        public void AddHuman(Human human)
+        public int GetDelay() => staySeconds;
+
+        public bool AddHuman(Human human)
         {
-            Humen.Add(human);
+            if(_humen.Count < 30)
+            {
+                _humen.Add(human);
+                Data?.UpdateData();
+                return true;
+            }
+            return false;
         }
 
-        public void RemoveHuman(Human human)
+        public void DropHuman(Human human)
         {
-            throw new NotImplementedException();
+            _humen.Remove(human);
+            Data?.UpdateData();
+        }
+
+        // Temporary
+        public void RemoveRandomHumen(int chanse)
+        {
+            for (int i = 0; i < _humen.Count; i++)
+            {
+                if(chanse < 20)
+                {
+                    DropHuman(_humen[i]);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
         }
 
         public override string ToString() => $"{Id}";

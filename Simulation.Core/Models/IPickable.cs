@@ -11,5 +11,7 @@ namespace Simulation.Core.ViewModels
         void OnPick();
 
         void OnDetach();
+
+        void Destroy();
     }
 }

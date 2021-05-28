@@ -23,9 +23,13 @@ namespace Simulation.Core.ViewModels
         private const int maxSpeed = 500;
         private const int minSpeed = 100;
         private readonly IMvxNavigationService navigationService;
-        private IPickable picked;
-        
+        private static SimulationTimer timer = new SimulationTimer();
+
+        public IPickable Picked { get; set; }
+
         public static IAnimationService DragService { get; set; }
+
+        public static SimulationTimer FullTime => timer;
 
         private object _pauseImage;
 
@@ -44,17 +48,28 @@ namespace Simulation.Core.ViewModels
         }
 
 
-        public static bool Paused { get; private set; } = true;
+        private string _timerString;
+
+        public string TimerString
+        {
+            get { return _timerString; }
+            set { SetProperty(ref _timerString, value); }
+        }
+
+
+        public bool Paused { get; private set; } = true;
 
         //public string StationCount => Stations.Count.ToString();
+
 
         public ShellViewModel(IMvxNavigationService _navigationService)
         {
             navigationService = _navigationService;
+            _timerString = timer.ToString();
             _routes = Route.GetRoutes();
         }
 
-        public static void StartSimulation()
+        public void StartSimulation()
         {
             thread = new Thread(new ThreadStart(Simulate));
             thread.IsBackground = true;
@@ -62,37 +77,38 @@ namespace Simulation.Core.ViewModels
             Debug.WriteLine($"Simulation started");
         }
 
-        public static void PauseSimulation()
+        public void PauseSimulation()
         {
             Paused = true;
             Debug.WriteLine($"Simulation paused");
         }
 
-        public static void ContinueSimulation()
+        public void ContinueSimulation()
         {
             Paused = false;
             StartSimulation();
         }
 
-        public static void SlowSimulation()
+        public void SlowSimulation()
         {
             if (tickTime < maxSpeed)
                 tickTime += alterSpeed;
             Debug.WriteLine($"Simulation speed is {1 / tickTime * 1000} sec");
         }
 
-        public static void SpeedUpSimulation()
+        public void SpeedUpSimulation()
         {
             if (tickTime > minSpeed)
                 tickTime -= alterSpeed;
             Debug.WriteLine($"Simulation speed is {1 / tickTime * 1000} sec");
         }
 
-        private static void Simulate()
+        private void Simulate()
         {
             while (!Paused)
             {
                 Thread.Sleep((int)tickTime);
+                TimerString = (++timer).ToString();
                 Station.SimulateAll();
                 Route.SimulateAll();
             }
@@ -115,23 +131,21 @@ namespace Simulation.Core.ViewModels
 
         public void DetachModel()
         {
-            picked?.OnDetach();
-            picked = null;
+            Picked?.OnDetach();
+            Picked = null;
         }
 
         public void AttachModel(IPickable pickable)
         {
-            if (picked == pickable)
+            if (Picked == pickable)
                 return;
-            picked = pickable;
-            picked.OnPick();
+            Picked = pickable;
+            Picked.OnPick();
         }
 
         public void Action()
         {
-            picked?.OnPick();
+            Picked?.OnPick();
         }
-
-        
     }
 }

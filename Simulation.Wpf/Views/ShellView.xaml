@@ -22,6 +22,7 @@
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -34,49 +35,59 @@
         <!-- Col 1 Row 1 -->
 
         <materialDesign:ColorZone Grid.Column="1" Grid.Row="1"
-                                  Grid.ColumnSpan="3">
+                                  Grid.ColumnSpan="4">
             <DockPanel>
                 <StackPanel Grid.Column="1" Grid.Row="1" 
                     Orientation="Horizontal"
                     Margin="3">
-                    <Button
-                local:CursorAnimation.IsEnabled="True"
-                Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-                        <materialDesign:PackIcon 
-                    Kind="CursorDefault"
-                    Height="25"
-                    Width="25"/>
+                    <Button Margin="0, 0, 10, 0"
+                        local:CursorAnimation.IsEnabled="True"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Cursor mode">
+                                <materialDesign:PackIcon 
+                            Kind="CursorDefault"
+                            Height="25"
+                            Width="25"/>
                     </Button>
 
-                    <Button
-                local:StationAnimation.IsEnabled="True"
-                Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-                        <materialDesign:PackIcon 
-                    Kind="BusStop"
-                    Height="25"
-                    Width="25"/>
+                    <Button Margin="0, 0, 10, 0"
+                        local:StationAnimation.IsEnabled="True"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Create station">
+                                <materialDesign:PackIcon 
+                            Kind="BusStop"
+                            Height="25"
+                            Width="25"/>
                     </Button>
 
-                    <Button
-                local:RoadAnimation.IsEnabled="True"
-                Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-                        <materialDesign:PackIcon 
-                    Kind="PencilAddOutline"
-                    Height="25"
-                    Width="25"/>
+                    <Button Margin="0, 0, 10, 0"
+                        local:RoadAnimation.IsEnabled="True"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Create road between two stations">
+                                <materialDesign:PackIcon 
+                            Kind="PencilAddOutline"
+                            Height="25"
+                            Width="25"/>
                     </Button>
 
-                    <Button
-            local:RouteDialoge.IsEnabled="True"
-            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+                    <Button Margin="0, 0, 10, 0"
+                        local:RouteDialoge.IsEnabled="True"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Create route">
+                                    <materialDesign:PackIcon 
+                            Kind="BusMarker"
+                            Height="25"
+                            Width="25"/>
+                    </Button>
+                    
+                    <Button Margin="0, 0, 10, 0"
+                            Click="Excel_Click"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Make excel file with statistics">
                         <materialDesign:PackIcon 
-                Kind="BusMarker"
-                Height="25"
-                Width="25"/>
+                            Kind="FileExcel"
+                            Height="25"
+                            Width="25"/>
                     </Button>
 
                 </StackPanel>
@@ -86,39 +97,51 @@
                 <StackPanel Grid.Column="2" Grid.Row="1"
                     Orientation="Horizontal"
                     Margin="200, 3, 3, 3">
-                    <Button
-            Click="Slow_Click"
-            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+                    <Button Margin="0, 0, 10, 0"
+                        Click="Slow_Click"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Slow simulation">
 
                         <materialDesign:PackIcon 
-                Kind="ChevronLeft"
-                Height="25"
-                Width="25"/>
+                            Kind="ChevronLeft"
+                            Height="25"
+                            Width="25"/>
                     </Button>
 
-                    <Button
-            Click="Pause_Click"
-            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
+                    <Button Margin="0, 0, 10, 0"
+                        Click="Pause_Click"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Play simulation">
 
                         <DynamicResource ResourceKey="Play"/>
                     </Button>
 
-                    <Button
-            Click="Quicker_Click"
-            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-            ToolTip="MaterialDesignFloatingActionMiniAccentButton">
-                        <materialDesign:PackIcon 
-                Kind="ChevronRight"
-                Height="25"
-                Width="25"/>
+                    <Button Margin="0, 0, 10, 0"
+                        Click="Quicker_Click"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="Speed up simulation">
+                                    <materialDesign:PackIcon 
+                            Kind="ChevronRight"
+                            Height="25"
+                            Width="25"/>
                     </Button>
                 </StackPanel>
-
             </DockPanel>
-
+            
         </materialDesign:ColorZone>
+
+        <!-- Col 4 Row 1 -->
+
+        <Border Grid.Column="4" Grid.Row="1"
+                BorderBrush="White" BorderThickness="3">
+            <TextBlock Margin="5"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Foreground="White"
+                       FontSize="20"
+                       Text="{Binding TimerString}"/>
+        </Border>
+        
 
         <!-- Col 1 Row 2 -->
 
@@ -129,6 +152,7 @@
                 <ListView 
                       FontSize="10"
                       Foreground="Black"
+                      MouseDoubleClick="Routes_MouseDoubleClick"
                       ItemsSource="{Binding Routes}"/>
             </ScrollViewer>
         </Border>
@@ -136,27 +160,21 @@
         <!-- Col 2 Row 2 -->
 
         <Border Grid.Column="2" Grid.Row="2"
-                Grid.ColumnSpan="2"
-                BorderBrush="Black" BorderThickness="2">
+                Grid.ColumnSpan="3"
+                BorderBrush="Black" BorderThickness="2"
+                KeyDown="DestroyKey">
             <ScrollViewer
                 HorizontalScrollBarVisibility="Hidden"
                 VerticalScrollBarVisibility="Hidden"
                 PreviewKeyDown="ScrollViewer_KeyDown"
                 KeyUp="ScrollViewer_KeyUp">
-                
-                <Canvas 
+
+                <Canvas
                     Background="AliceBlue"
                     Panel.ZIndex="2"
                     Height="1000"
                     Width="2000"
                     local:PlaceNewModel.IsEnabled="True">
-
-                    <Canvas.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform x:Name="st" />
-                            <TranslateTransform x:Name="translate" />
-                        </TransformGroup>
-                    </Canvas.RenderTransform>
                 </Canvas>
             </ScrollViewer>
         </Border>

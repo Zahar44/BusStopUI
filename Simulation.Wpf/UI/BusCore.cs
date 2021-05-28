@@ -5,14 +5,16 @@ using Simulation.Wpf.Helpers;
 using Simulation.Wpf.Views;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace Simulation.Wpf.UI
 {
-    class BusCore : ISimulationEntityCore, IUpdatable
+    class BusCore : ISimulationEntityCore, IUpdatable, IPickable
     {
+        private readonly Canvas canvas;
         private readonly RouteCore route;
         private readonly UserControl view;
         private readonly Bus bus;
@@ -25,7 +27,7 @@ namespace Simulation.Wpf.UI
 
         public UserControl View => view;
 
-        public Canvas Canvas => throw new NotImplementedException();
+        public Canvas Canvas => canvas;
 
         public ISimulationEntityModel SimulationModel => bus;
 
@@ -33,14 +35,17 @@ namespace Simulation.Wpf.UI
 
         public Size Size => throw new NotImplementedException();
 
-        public BusCore(RouteCore _route, int _delay)
+        public BusCore(RouteCore _route, int _delay, Canvas _canvas)
         {
             delay = _delay;
             route = _route;
             Current = null;
-            view = new BusView();
             bus = new Bus(delay);
-
+            view = new BusView
+            {
+                DataContext = new BusViewModel(bus),
+            };
+            canvas = _canvas;
             //(route.SimulationModel as Route).AddBus(bus);
             //Current.AddBus(this);
         }
@@ -68,6 +73,35 @@ namespace Simulation.Wpf.UI
             Previous?.RemoveBus(this);
             Current = route.Next(this);
             Current.AddBus(this);
+        }
+
+        public void Dispose()
+        {
+            SimulationModel.Dispose();
+            Current?.RemoveBus(this);
+            Canvas.Children.Remove(View);
+
+            GC.SuppressFinalize(this);
+        }
+
+        public void Create()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnPick()
+        {
+            View.BorderThickness = new Thickness(1, 1, 1, 1);
+        }
+
+        public void OnDetach()
+        {
+            View.BorderThickness = new Thickness();
+        }
+
+        public void Destroy()
+        {
+            Dispose();
         }
     }
 }

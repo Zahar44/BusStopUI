@@ -10,15 +10,17 @@ using System.Windows.Controls;
 
 namespace Simulation.Wpf.UI
 {
-    class RouteCore : ISimulationEntityCore, IUpdatable
+    class RouteCore : ISimulationEntityCore, IUpdatable, IPickable
     {
+        private static List<RouteCore> routes = new List<RouteCore>();
         private readonly Route route;
+        private readonly Canvas canvas;
         private List<BusCore> buses = new List<BusCore>();
         private List<IHoldBusesUI> ways = new List<IHoldBusesUI>();
 
         public UserControl View => throw new NotImplementedException();
 
-        public Canvas Canvas => throw new NotImplementedException();
+        public Canvas Canvas => canvas;
 
         public ISimulationEntityModel SimulationModel => route;
 
@@ -29,11 +31,51 @@ namespace Simulation.Wpf.UI
 
         public RouteCore(List<Station> _ways, int busCnt, int delay)
         {
-            //var stationCore = StationCore.GetModelBy(_ways.First());
-            SetBuses(busCnt, delay);
             SetWays(_ways);
+            canvas = (ways.First() as StationCore).Canvas; // -_-
+            
+            SetBuses(busCnt, delay);
             route = MakeRoute();
             AttachBuses();
+
+            routes.Add(this);
+        }
+
+        public static RouteCore FindBy(string routeString)
+        {
+            return routes.Find(x => x.route.ToString() == routeString);
+        }
+
+        public static void DisposeBy(IHoldBusesUI place)
+        {
+            for (int i = 0; i < routes.Count; i++)
+            {
+                DisposeBy(place, routes[i]);
+            }
+        }
+
+        private static void DisposeBy(IHoldBusesUI place, RouteCore route)
+        {
+            foreach (var way in route.ways)
+            {
+                if(way == place)
+                {
+                    route.Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            routes.Remove(this);
+            SimulationModel.Dispose();
+
+            foreach (var bus in buses)
+            {
+                bus.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
         }
 
         public void Update()
@@ -102,7 +144,7 @@ namespace Simulation.Wpf.UI
         {
             for (int i = 0; i < size; i++)
             {
-                buses.Add(new BusCore(this, delay * i));
+                buses.Add(new BusCore(this, delay * i, Canvas));
             }
         }
 
@@ -129,6 +171,32 @@ namespace Simulation.Wpf.UI
             {
                 route.AddBus(bus.SimulationModel  as Bus);
             }
+        }
+
+        public void Create()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnPick()
+        {
+            foreach (var bus in buses)
+            {
+                bus.OnPick();
+            }
+        }
+
+        public void OnDetach()
+        {
+            foreach (var bus in buses)
+            {
+                bus.OnDetach();
+            }
+        }
+
+        public void Destroy()
+        {
+            Dispose();
         }
     }
 }

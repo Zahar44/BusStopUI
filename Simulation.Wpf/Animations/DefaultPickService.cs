@@ -2,6 +2,7 @@
 using Simulation.Wpf.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,32 +23,29 @@ namespace Simulation.Wpf.Animations
             simulationService = _simulationService;
             canMove = _canMove;
         }
+        public void Pick(UserControl _control)
+        {
+            control = _control;
+            control.BorderThickness = new Thickness(1, 1, 1, 1);
 
+            if (canMove)
+            {
+                PickWithMove();
+            }
+            picked = true;
+        }
         public void Detach()
         {
             if (control == null)
                 return;
 
             control.BorderThickness = new Thickness();
-            
-            if(canMove)
+
+            if (canMove)
             {
                 DetachWithMove();
             }
-
             picked = false;
-        }
-
-        public void Pick(UserControl _control)
-        {
-            control = _control;
-            control.BorderThickness = new Thickness(1, 1, 1, 1);
-
-            if(canMove)
-            {
-                PickWithMove();
-            }
-            picked = true;
         }
 
         private void PickWithMove()
@@ -56,6 +54,14 @@ namespace Simulation.Wpf.Animations
 
             control.MouseMove += DragMove;
             control.MouseLeftButtonUp += PlaceView;
+        }
+
+        private void Destroy(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Delete)
+            {
+                core.Dispose();
+            }
         }
 
         private void DetachWithMove()
