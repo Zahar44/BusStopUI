@@ -35,10 +35,10 @@ Simulation generating data by time. You can get those data to excel file.
 
 #### Functionality
 
-To pick up element - double click.  (work's with routes)
-To move station - pick up and move mouse with lcm.
-To move road - move station.
-To delete element - pick up and press 'delete' button.
+- To pick up element - double click.  (work's with routes)
+- To move station - pick up and move mouse with lcm.
+- To move road - move station.
+- To delete element - pick up and press 'delete' button.
 
 ### Exemples
 
