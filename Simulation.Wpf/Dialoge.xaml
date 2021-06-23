@@ -7,7 +7,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Simulation.Wpf"
         mc:Ignorable="d"
-        Title="Dialoge" d:DesignHeight="300" d:DesignWidth="250">
+        Title="Dialoge" d:DesignHeight="300" d:DesignWidth="250"
+        ResizeMode="NoResize">
     <Grid>
 
     </Grid>
